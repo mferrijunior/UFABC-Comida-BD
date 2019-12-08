@@ -240,7 +240,10 @@ public class BancoDados {
 	}
 	
 	public void buscaRefeicaoPorRestaurante(String restaurante) {
-		//busca todas as refeicoes/pratos disponiveis por restaurante
+		//Seleciona o endereço do restaurante, com o 
+		
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select from )
 	}
 	
 	

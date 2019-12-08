@@ -91,6 +91,7 @@ public class Main {
 				    		bd.buscaRestaurantePorComidaERegiao(tipoComida,cpf);
 					    	restaurante = s.nextLine().trim();
 					    	if(restaurante != null) {
+					    		//estou aq
 					    		System.out.println("Essas são as refeições disponíveis e os preços de cada uma, oferecidos pelo restaurante escolhido. Escolha uma: ");
 					    		bd.buscaRefeicaoPorRestaurante(restaurante);
 						    	refeicao = s.nextLine().trim();
