@@ -13,11 +13,11 @@ public class Main {
 	public static void main (String[] args) throws ParseException, SQLException {
 		
 		Scanner s = new Scanner (System.in);
-		String opcao,nome,email,bairro,endereco,nomeFantasia,tipoComida = null,restaurante,refeicao, nomeEntregador, modeloVeiculo,
+		String opcao,nome,email,bairro,endereco,nomeFantasia,tipoComida = null,restaurante, nomeEntregador, modeloVeiculo,
 				placaVeiculo,entregadorSimNao,clienteEntregador,meioPagamento,trocoSimNao,validadeCartaoString,nomeTitular,
 				horarioInicial,horarioFinal;
 		Long cpf,cnpj,rg,telefone,numeroCartao,cpfTitular;
-		Integer disponibilidade = null;
+		Integer disponibilidade = null,refeicao;
 		Float trocoValor, dinheiroValor,preco;
 		Double validadeCartaoDouble;
 		Mensagens msgs = new Mensagens();
@@ -79,11 +79,11 @@ public class Main {
 			    		}
 			    	}
 			    } else {
-			    	System.out.println("Cadastro encontrado no sistema! Você é cliente ou entregador? Selecione a opção ");
+			    	System.out.println("Cadastro encontrado no sistema! Você está como cliente ou entregador? Selecione a opção ");
 			    	msgs.clienteEntregador();
 			    	clienteEntregador = s.nextLine().trim();
 				    if(clienteEntregador.equals("1")) {
-				    	System.out.println("Qual é o tipo de comida que deseja?");
+				    	System.out.println("\nQual é o tipo de comida que deseja, das listadas abaixo? Escreva por extenso");
 				    	bd.buscaComida();
 				    	tipoComida = s.nextLine().trim();
 				    	if (tipoComida != null) {
@@ -92,9 +92,9 @@ public class Main {
 					    	restaurante = s.nextLine().trim();
 					    	if(restaurante != null) {
 					    		//estou aq
-					    		System.out.println("Essas são as refeições disponíveis e os preços de cada uma, oferecidos pelo restaurante escolhido. Escolha uma: ");
+					    		System.out.println("Essas são as refeições disponíveis e os preços de cada uma, oferecidos pelo restaurante escolhido. Escolha uma pelo número: ");
 					    		bd.buscaRefeicaoPorRestaurante(restaurante);
-						    	refeicao = s.nextLine().trim();
+						    	refeicao = Integer.valueOf(s.nextLine().trim());
 						    	if(refeicao != null) {
 						    		System.out.println("Informe o meio de pagamento: ");
 						    		msgs.meioPagamento();
@@ -106,32 +106,34 @@ public class Main {
 						    			if(trocoSimNao.equals("1")) {
 						    				System.out.println("Quanto em dinheiro você vai dar?");
 						    				dinheiroValor = Float.valueOf(s.nextLine().trim());	
-						    				bd.salvaEncomendaDinheiro(cpf,restaurante,refeicao);
+						    				bd.salvaEncomendaDinheiroTroco(cpf,restaurante,refeicao,dinheiroValor);
 						    				
 						    			}
-						    			else if(meioPagamento.equals("2")) {
-						    				System.out.println("Cadastre o número do cartão de crédito: ");
-						    				numeroCartao = Long.valueOf(s.nextLine().trim());
-						    				if(numeroCartao != null) {
-						    					System.out.println("Informe o nome do titular do cartão: ");
-						    					nomeTitular = s.nextLine().trim();
-						    					if(nomeTitular != null) {
-						    						System.out.println("Informe o cpf do titular do cartão: ");
-						    						cpfTitular = Long.valueOf(s.nextLine().trim());
-						    						if(cpfTitular != null) {
-						    							System.out.println("Informe a validade do cartão(MM/aaaa): ");
-						    							validadeCartaoString = s.nextLine().trim();						    							 
-						    						        LocalDate validadeDate = null;
-						    						        DateTimeFormatter formatter = null;
-						    						        formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-						    						        validadeDate = LocalDate.parse(validadeCartaoString, formatter);
-						    						        bd.salvaEncomendaCartao(cpf,restaurante,refeicao,numeroCartao,nomeTitular,cpfTitular, validadeDate);
-						    							
-						    						}
-						    					}
-						    				}
-						    				
+						    			else if(trocoSimNao.contentEquals("2")) {
+						    				bd.salvaEncomendaDinheiro(cpf, restaurante, refeicao);
 						    			}
+						    		}
+					    			else if(meioPagamento.equals("2")) {
+					    				System.out.println("Cadastre o número do cartão de crédito: ");
+					    				numeroCartao = Long.valueOf(s.nextLine().trim());
+					    				if(numeroCartao != null) {
+					    					System.out.println("Informe o nome do titular do cartão: ");
+					    					nomeTitular = s.nextLine().trim();
+					    					if(nomeTitular != null) {
+					    						System.out.println("Informe o cpf do titular do cartão: ");
+					    						cpfTitular = Long.valueOf(s.nextLine().trim());
+					    						if(cpfTitular != null) {
+					    							System.out.println("Informe a validade do cartão(MM/aaaa): ");
+					    							validadeCartaoString = s.nextLine().trim();
+					    							validadeCartaoString = "30/"+validadeCartaoString;
+					    							 LocalDate validadeDate = LocalDate.parse(validadeCartaoString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+					    						        bd.salvaEncomendaCartao(cpf,restaurante,refeicao,numeroCartao,nomeTitular,cpfTitular, validadeDate);
+					    							
+					    						}
+					    					}
+					    				}
+					    				
+					    			}
 						    		}
 						    		//bd.cadastraEncomenda();
 						    	}
@@ -146,7 +148,7 @@ public class Main {
 				    	//cadastrar entregador do restaurante;
 				    }			    						    	
 			    }
-			}
+			
 			else if (opcao.equals("2")) {
 				System.out.println("Digite o número do CNPJ, somente números: ");
 				cnpj = Long.valueOf(s.nextLine().trim());
@@ -223,9 +225,6 @@ public class Main {
 			    	 }
 			    	 else if(opcaoRestaurante.equals("2")) {
 			    		 System.out.println("Digite o prato que deseja cadastrar: ");
-			    		 refeicao = s.nextLine().trim();
-			    		 if(refeicao != null) {
-			    			 System.out.println("Escreva a descricao do prato:");
 			    			 String descricao = s.nextLine().trim();
 			    			 if(descricao != null) {
 			    				 System.out.println("Escreva o preco do prato(use o ponto como separador de decimal: ");
@@ -241,7 +240,7 @@ public class Main {
 			    					 else if(simNao.equals("2")) {
 			    						 disponibilidade = 0;
 			    					 }
-			    					bd.restauranteCadastraRefeicao(cnpj, refeicao,descricao,precoRefeicao,disponibilidade);	 
+			    					bd.restauranteCadastraRefeicao(cnpj,descricao,precoRefeicao,disponibilidade);	 
 					    			System.out.println("Refeição cadastrada com sucesso!");
 			    					//(Long cnpj, String refeicao, String descricao, Double preco, int disponibilidade)
 					    		
@@ -253,7 +252,7 @@ public class Main {
 			    	
 			   }
 			    
-		 }			
+				
 			else {
 				System.out.println("Opção não existente, sistema sendo desligado!");
 				break;

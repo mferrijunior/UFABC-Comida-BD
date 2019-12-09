@@ -26,13 +26,17 @@ create table horario(
 
 create table horario_unidade(
 	horario_id int,
-	endereco varchar(40),,
+	endereco varchar(40),
 	FOREIGN KEY (horario_id) REFERENCES horario (horario_id),
 	FOREIGN KEY (endereco) REFERENCES restaurante_unidade (endereco)
 );
 
 create table regiao(
 	bairro varchar(40) primary key
+);
+
+create table meio_pagamento (
+meiopagamento_id int primary key
 );
 
 create table regiao_unidade(
@@ -117,13 +121,14 @@ create table telefone_humano(
 	FOREIGN KEY (cpf) REFERENCES humano (cpf)
 );
 
+
 create table compra(
 	refeicao_id int,
 	cpf_cliente bigint,
 	cpf_entregador bigint,
 	meiopagamento_id int,
 	placa char(8),
-	tempo_espera bigint not null,
+	tempo_espera int not null,
 	cnpj_restaurante bigint,
 	FOREIGN KEY (cnpj_restaurante) REFERENCES restaurante_sede(cnpj),
 	FOREIGN KEY (refeicao_id) REFERENCES refeicao (refeicao_id),
@@ -133,9 +138,6 @@ create table compra(
 	FOREIGN KEY (placa) REFERENCES veiculo (placa)
 );
 
-create table meio_pagamento (
-meiopagamento_id
-);
 
 create table dinheiro (
 troco numeric,

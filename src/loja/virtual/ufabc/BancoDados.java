@@ -1,5 +1,6 @@
 package loja.virtual.ufabc;
 
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,7 +15,7 @@ public class BancoDados {
 	
 	Connection conn = null;
 	public BancoDados() throws SQLException{
-		 conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/loja-virtual-comida-ufabc", "postgres","130296");
+		 conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/v4-dev-bkpmfj", "postgres","www.");
 			System.out.println("Conectado!");
 	}
 	
@@ -161,8 +162,8 @@ public class BancoDados {
 		st.close();
 		horarioId = buscaHorarioId(endereco);
 		st = conn.createStatement();
-		st.execute("insert into horario_unidade(horario_id, endereco, nome_fantasia)\n"+
-		"values('"+horarioId+"','"+endereco+"','"+nomeFantasia+"')");
+		st.execute("insert into horario_unidade(horario_id, endereco)\n"+
+		"values('"+horarioId+"','"+endereco+"')");
 		st.close();
 	}
 	
@@ -182,7 +183,7 @@ public class BancoDados {
 		 
 	}
 	
-	public void restauranteCadastraRefeicao(Long cnpj, String refeicao, String descricao, Float preco, int disponibilidade) throws SQLException {
+	public void restauranteCadastraRefeicao(Long cnpj, String descricao, Float preco, int disponibilidade) throws SQLException {
 		Integer refeicaoId = null;
 		String endereco = null;
 		//inserir na tabela refeicao- descricao, preco(float), disponibilidade(numeric 1,0)
@@ -199,23 +200,34 @@ public class BancoDados {
 		
 	}
 	
-	public void buscaComida() {
-		
-		//Nesse método, busca as todos os tipos de comida pro cliente escolher o tipo de comida que deseja
-		System.out.println("Italiana");
-		System.out.println("Japonesa");
-		System.out.println("Lanches");
-		System.out.println("Churrasco");
-	
+	public void buscaComida() throws SQLException {	
+		//Buscar na tabela tipo_comida
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select distinct tipo from tipo_comida");
+		while(rs.next()) {
+			System.out.println(rs.getString(1));	
+		}
+		rs.close();
+		st.close();
 	}
 	
-	public void buscaRestaurantePorComidaERegiao(String tipoComida, Long cpf) {
-		System.out.println("\nItaly food");
-		System.out.println("Japanese House");
-		System.out.println("Horti-Frutti");
+	public void buscaRestaurantePorComidaERegiao(String tipoComida, Long cpf) throws SQLException {
+		//busca elo tipo comida, e pelo endereco do cpf, pega o endereco do restaurante where tipo comida like tipocomida;
+		//pelo cpf pega o bairro da tb humano// esse bairo pega o endereco pela tabela regiao_unidade // esse endereco pega o tipo na tabela tipo_unidade // com esse endereco pega o cnpj na sede_unidade // com esse cnpj pega o nome_fantasia da restaurante_sede
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select rs.nome_fantasia from restaurante_sede as rs\n"+
+		"JOIN sede_unidade as su ON rs.cnpj = su.cnpj\n"+
+		"JOIN regiao_unidade as ru ON ru.endereco = su.endereco\n"+
+		"JOIN tipo_unidade as tu ON tu.endereco = ru.endereco\n"+
+		"JOIN humano as h ON ru.bairro = h.bairro_humano\n"+
+		"WHERE h.cpf="+cpf+" and tu.tipo ='"+tipoComida+"'");
+		while(rs.next()) {
+			System.out.println(rs.getString(1));
+		}
 		
 		
 	}
+
 	
 	public void buscaPratosPorRestaurante(String restaurante) {
 		System.out.println("Macarrão");
@@ -224,26 +236,115 @@ public class BancoDados {
 				
 	}
 	
-	public void salvaEncomendaDinheiro(Long cpf, String restaurante, String refeicao) {
-		//cadastra encomenda sem cartão de crédito
-		//procura na tabela de entregadores, um entregador hipoteticamente disponível;
-		//cadastra o tempo disponivel tambem
-		//System.out do tempo!
-	}
-	
-	public void salvaEncomendaCartao(Long cpf, String restaurante, String refeicao, Long numeroCartao, String nomeTitular, Long cpfTitular, LocalDate validadeDate) {
-		//cadastra encomenda com cartão de crédito
-		//cadastra cartao com todos os dados
-		//procura na tabela de entregadores, um entregador hipoteticamente disponível;
-		//cadastra o tempo disponivel tambem
-		//System.out do tempo! (atenção que o JDBC com postgresql suporta LocalDate format)
-	}
-	
-	public void buscaRefeicaoPorRestaurante(String restaurante) {
-		//Seleciona o endereço do restaurante, com o 
-		
+	public void salvaEncomendaDinheiroTroco(Long cpf, String restaurante, Integer refeicao, Float dinheiroValor) throws SQLException {
 		Statement st = conn.createStatement();
-		ResultSet rs = st.executeQuery("select from )
+		ResultSet rs = st.executeQuery("select preco from refeicao where refeicao_id="+refeicao);
+		rs.next();
+		Float precoBanco = rs.getFloat(1);
+		Float troco = dinheiroValor - precoBanco;
+		//insert into meio_pagamento meiopagamento_id = 1;
+		//insert into compra refeicao_id = refeicao, cpf_cliente = cpf, cpf_entregador = disponivel / placa = disponivel / tempo_espera = 30min
+		//cnpj_restaurante = cnpj where nome_fantasia like restaurante
+		rs.close();
+		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
+		rs2.next();
+		Long cpfEntregador = rs2.getLong(1);
+		String placa = rs2.getString(2);
+		rs2.close();
+		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
+		rs3.next();
+		Long cnpj = rs3.getLong(1);
+		rs3.close();
+		Integer meioPagamento = null;
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
+		rs4.next();
+		meioPagamento = rs4.getInt(1) + 1;
+		if(rs4.getInt(1) < 1) {
+			meioPagamento = 1;
+		}
+		
+		rs4.close();
+		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
+		"values("+meioPagamento+")");
+		st.execute("insert into dinheiro(troco, meiopagamento_id)\n"+
+		"values("+troco+","+meioPagamento+")");
+		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
+		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
+		
+	}
+	
+	public void salvaEncomendaDinheiro(Long cpf, String restaurante, Integer refeicao) throws SQLException {
+		Statement st = conn.createStatement();
+		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
+		rs2.next();
+		Long cpfEntregador = rs2.getLong(1);
+		String placa = rs2.getString(2);
+		rs2.close();
+		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
+		rs3.next();
+		Long cnpj = rs3.getLong(1);
+		rs3.close();
+		Integer meioPagamento = null;
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
+		rs4.next();
+		meioPagamento = rs4.getInt(1) + 1;
+		if (rs4.getInt(1) < 1) {
+			meioPagamento = 1;
+		}
+		rs4.close();
+		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
+		"values("+meioPagamento+")");
+		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
+		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
+		
+	}
+	
+	public void salvaEncomendaCartao(Long cpf, String restaurante, Integer refeicao, Long numeroCartao, String nomeTitular, Long cpfTitular, LocalDate validadeDate) throws SQLException {
+		Statement st = conn.createStatement();
+		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
+		rs2.next();
+		Long cpfEntregador = rs2.getLong(1);
+		String placa = rs2.getString(2);
+		rs2.close();
+		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
+		rs3.next();
+		Long cnpj = rs3.getLong(1);
+		rs3.close();
+		Integer meioPagamento = null;
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
+		rs4.next();
+		meioPagamento = rs4.getInt(1) + 1;
+		if(rs4.getInt(1) < 1) {
+			meioPagamento = 1;
+		}
+		rs4.close();
+		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
+		"values("+meioPagamento+")");
+		st.execute("insert into cartao(numero_cartao,cpf,meiopagamento_id,validade,nome_titular)\n"+
+		"values("+numeroCartao+","+cpf+","+meioPagamento+",'"+validadeDate+"','"+nomeTitular+"')");
+		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
+		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
+	}
+	
+	public void buscaRefeicaoPorRestaurante(String restaurante) throws SQLException {
+		//Selecionar join restaurante_sede pelo nome fantasia, onde o CNPJ for
+		//igual à da sede_unidade, p pegar o endereco. Esse endereco bate na
+		//refeicao_unidade, q trás o refeicao Id. Esse refeicao Id bate na tab
+		//refeicao, q pega a descricao(nome)e o preco);
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select r.refeicao_id, r.descricao, r.preco from restaurante_sede as rs\n"+
+		"JOIN sede_unidade as su ON rs.cnpj = su.cnpj\n"+
+		"JOIN refeicao_unidade as ru ON ru.endereco = su.endereco\n"+
+		"JOIN refeicao as r ON r.refeicao_id = ru.refeicao_id\n"+
+		"where rs.nome_fantasia like '"+restaurante+"'");
+		 ResultSetMetaData rsmd = rs.getMetaData();
+		 String refeicaoid  = rsmd.getColumnName(1);
+		 String descricao = rsmd.getColumnName(2);
+		 String preco = rsmd.getColumnName(3);
+		 System.out.println(refeicaoid+" | "+descricao+" | "+preco);
+		while(rs.next()) {
+			System.out.println(rs.getString(1)+" | "+rs.getString(2)+" | "+rs.getString(3));
+		}
 	}
 	
 	
