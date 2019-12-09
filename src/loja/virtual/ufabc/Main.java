@@ -18,7 +18,8 @@ public class Main {
 				horarioInicial,horarioFinal;
 		Long cpf,cnpj,rg,telefone,numeroCartao,cpfTitular;
 		Integer disponibilidade = null,refeicao;
-		Float trocoValor, dinheiroValor,preco;
+		Float trocoValor,preco;
+		float dinheiroValor;
 		Double validadeCartaoDouble;
 		Mensagens msgs = new Mensagens();
 		BancoDados bd = new BancoDados();
@@ -32,7 +33,7 @@ public class Main {
 				
 				System.out.println("Digite o número do CPF, somente números: ");
 			    cpf = Long.valueOf(s.nextLine().trim());
-			    Boolean resposta = bd.buscaHumano(cpf);
+			    boolean resposta = bd.buscaHumano(cpf);
 			    if(resposta == false) {
 					System.out.println("Primeiro acesso detectado! Preencha os dados para efetuar o cadastro.");
 			    	System.out.println("Escreva seu nome completo: ");
@@ -105,7 +106,8 @@ public class Main {
 						    			trocoSimNao = s.nextLine().trim();
 						    			if(trocoSimNao.equals("1")) {
 						    				System.out.println("Quanto em dinheiro você vai dar?");
-						    				dinheiroValor = Float.valueOf(s.nextLine().trim());	
+						    				dinheiroValor = Float.valueOf((s.nextLine().trim())).floatValue();
+						    				
 						    				bd.salvaEncomendaDinheiroTroco(cpf,restaurante,refeicao,dinheiroValor);
 						    				
 						    			}
@@ -152,7 +154,7 @@ public class Main {
 			else if (opcao.equals("2")) {
 				System.out.println("Digite o número do CNPJ, somente números: ");
 				cnpj = Long.valueOf(s.nextLine().trim());
-			    Boolean resposta = bd.buscaRestaurante(cnpj);
+			    boolean resposta = bd.buscaRestaurante(cnpj);
 			    
 			    if(resposta == false) {
 			    	System.out.println("Primeiro acesso detectado! Preencha os dados para efetuar o cadastro.");
@@ -235,10 +237,10 @@ public class Main {
 			    					 msgs.troco();
 			    					 String simNao = s.nextLine().trim();
 			    					 if(simNao.equals("1")) {
-			    						 disponibilidade = 1;
+			    						 disponibilidade = Integer.valueOf(1);
 			    					 }
 			    					 else if(simNao.equals("2")) {
-			    						 disponibilidade = 0;
+			    						 disponibilidade = Integer.valueOf(0);
 			    					 }
 			    					bd.restauranteCadastraRefeicao(cnpj,descricao,precoRefeicao,disponibilidade);	 
 					    			System.out.println("Refeição cadastrada com sucesso!");

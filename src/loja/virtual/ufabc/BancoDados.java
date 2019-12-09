@@ -19,7 +19,7 @@ public class BancoDados {
 			System.out.println("Conectado!");
 	}
 	
-	public Boolean buscaHumano(long cpf) throws SQLException {
+	public boolean buscaHumano(Long cpf) throws SQLException {
 		//Nesse método,procura se o CPF existe na bsae de dados - tabela humano
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select from humano\n"+
@@ -32,7 +32,7 @@ public class BancoDados {
 		return false;
 	}
 	
-	public void salvaHumano(long cpf,String nome,Long rg,String email,Long telefone,String endereco,String bairro) throws SQLException {
+	public void salvaHumano(Long cpf,String nome,Long rg,String email,Long telefone,String endereco,String bairro) throws SQLException {
 		//insert na TB humano cpf,rg,nome,bairro,endereco
 		//insert na TB email cpf(FK_humanocpf), email
 		//insert na TB telefone
@@ -49,7 +49,7 @@ public class BancoDados {
 		
 	}
 	
-	public void salvaHumanoVeiculo(long cpf,String nome,Long rg,String email,Long telefone,String endereco,String bairro, String modeloVeiculo, String placaVeiculo) throws SQLException {
+	public void salvaHumanoVeiculo(Long cpf,String nome,Long rg,String email,Long telefone,String endereco,String bairro, String modeloVeiculo, String placaVeiculo) throws SQLException {
 		//insert na TB humano cpf,rg,nome,bairro,endereco
 				//insert na TB email cpf(FK_humanocpf), email
 				//insert na TB telefone
@@ -69,7 +69,7 @@ public class BancoDados {
 		
 	}
 	
-	public Boolean buscaRestaurante(Long cnpj) throws SQLException {
+	public boolean buscaRestaurante(Long cnpj) throws SQLException {
 		//Nesse método, procura se o CNPJ existe na base de dados - tabela restaurante_sede;
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery("select from restaurante_sede\n"+
@@ -102,7 +102,7 @@ public class BancoDados {
 			ResultSet rs = st.executeQuery("select refeicao_id from refeicao order by refeicao_id desc");
 			rs.next();			
 			System.out.println(rs.getInt(1));	
-			refeicaoId = rs.getInt(1);
+			refeicaoId = Integer.valueOf(rs.getInt(1));
 			rs.close();
 			st.close();
 			return refeicaoId;
@@ -183,7 +183,7 @@ public class BancoDados {
 		 
 	}
 	
-	public void restauranteCadastraRefeicao(Long cnpj, String descricao, Float preco, int disponibilidade) throws SQLException {
+	public void restauranteCadastraRefeicao(Long cnpj, String descricao, Float preco, Integer disponibilidade) throws SQLException {
 		Integer refeicaoId = null;
 		String endereco = null;
 		//inserir na tabela refeicao- descricao, preco(float), disponibilidade(numeric 1,0)
@@ -236,31 +236,31 @@ public class BancoDados {
 				
 	}
 	
-	public void salvaEncomendaDinheiroTroco(Long cpf, String restaurante, Integer refeicao, Float dinheiroValor) throws SQLException {
+	public void salvaEncomendaDinheiroTroco(Long cpf, String restaurante, Integer refeicao, float dinheiroValor) throws SQLException {
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select preco from refeicao where refeicao_id="+refeicao);
 		rs.next();
-		Float precoBanco = rs.getFloat(1);
-		Float troco = dinheiroValor - precoBanco;
+		float precoBanco = (rs.getFloat(1));
+		float troco = dinheiroValor - precoBanco;
 		//insert into meio_pagamento meiopagamento_id = 1;
 		//insert into compra refeicao_id = refeicao, cpf_cliente = cpf, cpf_entregador = disponivel / placa = disponivel / tempo_espera = 30min
 		//cnpj_restaurante = cnpj where nome_fantasia like restaurante
 		rs.close();
 		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
 		rs2.next();
-		Long cpfEntregador = rs2.getLong(1);
+		Long cpfEntregador = Long.valueOf(rs2.getLong(1));
 		String placa = rs2.getString(2);
 		rs2.close();
 		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
 		rs3.next();
-		Long cnpj = rs3.getLong(1);
+		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
 		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
 		rs4.next();
-		meioPagamento = rs4.getInt(1) + 1;
+		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 		if(rs4.getInt(1) < 1) {
-			meioPagamento = 1;
+			meioPagamento = Integer.valueOf(1);
 		}
 		
 		rs4.close();
@@ -277,19 +277,19 @@ public class BancoDados {
 		Statement st = conn.createStatement();
 		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
 		rs2.next();
-		Long cpfEntregador = rs2.getLong(1);
+		Long cpfEntregador = Long.valueOf(rs2.getLong(1));
 		String placa = rs2.getString(2);
 		rs2.close();
 		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
 		rs3.next();
-		Long cnpj = rs3.getLong(1);
+		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
 		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
 		rs4.next();
-		meioPagamento = rs4.getInt(1) + 1;
+		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 		if (rs4.getInt(1) < 1) {
-			meioPagamento = 1;
+			meioPagamento = Integer.valueOf(1);
 		}
 		rs4.close();
 		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
@@ -303,19 +303,19 @@ public class BancoDados {
 		Statement st = conn.createStatement();
 		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
 		rs2.next();
-		Long cpfEntregador = rs2.getLong(1);
+		Long cpfEntregador = Long.valueOf(rs2.getLong(1));
 		String placa = rs2.getString(2);
 		rs2.close();
 		ResultSet rs3 = st.executeQuery("select cnpj from restaurante_sede where nome_fantasia like '"+restaurante+"'");
 		rs3.next();
-		Long cnpj = rs3.getLong(1);
+		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
 		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
 		rs4.next();
-		meioPagamento = rs4.getInt(1) + 1;
+		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 		if(rs4.getInt(1) < 1) {
-			meioPagamento = 1;
+			meioPagamento = Integer.valueOf(1);
 		}
 		rs4.close();
 		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
