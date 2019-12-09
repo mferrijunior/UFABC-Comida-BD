@@ -256,13 +256,14 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
-		rs4.next();
-		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
-		if(rs4.getInt(1) < 1) {
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		if(rs4.next()) {
+			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
+			
+		}
+		else {
 			meioPagamento = Integer.valueOf(1);
 		}
-		
 		rs4.close();
 		st.execute("insert into meio_pagamento(meiopagamento_id)\n"+
 		"values("+meioPagamento+")");
@@ -285,10 +286,12 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
-		rs4.next();
-		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
-		if (rs4.getInt(1) < 1) {
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		if(rs4.next()) {
+			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
+			
+		}
+		else {
 			meioPagamento = Integer.valueOf(1);
 		}
 		rs4.close();
@@ -311,10 +314,12 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id desc");
-		rs4.next();
-		meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
-		if(rs4.getInt(1) < 1) {
+		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		if(rs4.next()) {
+			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
+			
+		}
+		else {
 			meioPagamento = Integer.valueOf(1);
 		}
 		rs4.close();
