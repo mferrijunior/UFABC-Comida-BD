@@ -229,11 +229,11 @@ public class Main {
 			    		 System.out.println("Digite o prato que deseja cadastrar: ");
 			    			 String descricao = s.nextLine().trim();
 			    			 if(descricao != null) {
-			    				 System.out.println("Escreva o preco do prato(use o ponto como separador de decimal: ");
+			    				 System.out.println("Escreva o preço do prato(use o ponto como separador de decimal: ");
 			    				 Float precoRefeicao = Float.valueOf(s.nextLine().trim());
 			    				 
 			    				 if(precoRefeicao != null) {
-			    					 System.out.println("Esse prato já está à venda aos clientes? ");
+			    					 System.out.println("Esse prato já está disponível à venda aos clientes? ");
 			    					 msgs.troco();
 			    					 String simNao = s.nextLine().trim();
 			    					 if(simNao.equals("1")) {

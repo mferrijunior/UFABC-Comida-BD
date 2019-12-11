@@ -256,7 +256,7 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		ResultSet rs4 = st.executeQuery("select max(meiopagamento_id) from meio_pagamento");
 		if(rs4.next()) {
 			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 			
@@ -286,7 +286,7 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		ResultSet rs4 = st.executeQuery("select max(meiopagamento_id) from meio_pagamento");
 		if(rs4.next()) {
 			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 			
@@ -314,7 +314,7 @@ public class BancoDados {
 		Long cnpj = Long.valueOf(rs3.getLong(1));
 		rs3.close();
 		Integer meioPagamento = null;
-		ResultSet rs4 = st.executeQuery("select meiopagamento_id from meio_pagamento order by meiopagamento_id asc");
+		ResultSet rs4 = st.executeQuery("select max(meiopagamento_id) from meio_pagamento");
 		if(rs4.next()) {
 			meioPagamento = Integer.valueOf(rs4.getInt(1) + 1);
 			
