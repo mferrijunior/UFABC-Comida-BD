@@ -137,17 +137,13 @@ public class Main {
 					    				
 					    			}
 						    		}
-						    		//bd.cadastraEncomenda();
+						    		
 						    	}
 					    	}
 					    		
 				    	}
 				    	
-				    	//String sDate1="31/12/1998";
-				    	//Date date1=new SimpleDateFormat("dd/MM/yyyy").parse(sDate1);
-				    	//bd.cadastraEncomenda();
-				    	
-				    	//cadastrar entregador do restaurante;
+
 				    }			    						    	
 			    }
 			
@@ -224,6 +220,7 @@ public class Main {
 			    	 String opcaoRestaurante = s.nextLine().trim();
 			    	 if (opcaoRestaurante.equals("1")) {
 			    		 bd.restauranteConsultaVendaAtiva(cnpj);
+			    		 break;
 			    	 }
 			    	 else if(opcaoRestaurante.equals("2")) {
 			    		 System.out.println("Digite o prato que deseja cadastrar: ");
