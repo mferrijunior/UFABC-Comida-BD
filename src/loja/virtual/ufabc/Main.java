@@ -109,10 +109,12 @@ public class Main {
 						    				dinheiroValor = Float.valueOf((s.nextLine().trim())).floatValue();
 						    				
 						    				bd.salvaEncomendaDinheiroTroco(cpf,restaurante,refeicao,dinheiroValor);
+						    				break;
 						    				
 						    			}
 						    			else if(trocoSimNao.contentEquals("2")) {
 						    				bd.salvaEncomendaDinheiro(cpf, restaurante, refeicao);
+						    				break;
 						    			}
 						    		}
 					    			else if(meioPagamento.equals("2")) {
@@ -130,24 +132,25 @@ public class Main {
 					    							validadeCartaoString = "30/"+validadeCartaoString;
 					    							 LocalDate validadeDate = LocalDate.parse(validadeCartaoString, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 					    						        bd.salvaEncomendaCartao(cpf,restaurante,refeicao,numeroCartao,nomeTitular,cpfTitular, validadeDate);
-					    							
+					    						        break;
 					    						}
 					    					}
 					    				}
 					    				
 					    			}
 						    		}
-						    		//bd.cadastraEncomenda();
+						    		
 						    	}
 					    	}
 					    		
+				    	}else if (clienteEntregador.equals("2")) {
+				    		System.out.println("Esses são os dados necessários para a entrega: ");
+				    		bd.buscaEntrega(cpf);
+				    		break;
+				    		
 				    	}
 				    	
-				    	//String sDate1="31/12/1998";
-				    	//Date date1=new SimpleDateFormat("dd/MM/yyyy").parse(sDate1);
-				    	//bd.cadastraEncomenda();
-				    	
-				    	//cadastrar entregador do restaurante;
+
 				    }			    						    	
 			    }
 			
@@ -224,6 +227,7 @@ public class Main {
 			    	 String opcaoRestaurante = s.nextLine().trim();
 			    	 if (opcaoRestaurante.equals("1")) {
 			    		 bd.restauranteConsultaVendaAtiva(cnpj);
+			    		 break;
 			    	 }
 			    	 else if(opcaoRestaurante.equals("2")) {
 			    		 System.out.println("Digite o prato que deseja cadastrar: ");

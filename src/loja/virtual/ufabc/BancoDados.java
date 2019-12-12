@@ -167,27 +167,60 @@ public class BancoDados {
 		st.close();
 	}
 	
-	public void restauranteConsultaVendaAtiva(Long cnpj) throws SQLException {
-		//TERMINAR! - FAZER NUMERO DE VENDAS EFETUADAS
-		Statement st = conn.createStatement();	
-		ResultSet rs = st.executeQuery("select * from compra \n"+
-		"where cnpj_restaurante="+cnpj+")");
-		 ResultSetMetaData rsmd = rs.getMetaData();
-		 String refeicaoid  = rsmd.getColumnName(1);
-		 String cpf_cliente = rsmd.getColumnName(2);
-		 String cpf_entregador = rsmd.getColumnName(3);
-		 String numero_cartao = rsmd.getColumnName(4);
-		 String placa_entregador  = rsmd.getColumnName(5);
-		 String tempo_para_enviar = rsmd.getColumnName(6);
-		 String cnpj_restaurante = rsmd.getColumnName(7);
-		 
+	
+	public ResultSet nomeEntregadorCompra(Long cnpj) throws SQLException {
+		ResultSet nomeEntregador = null;
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select h.nome from compra as c\n"+
+		"JOIN humano as h ON h.cpf = c.cpf_entregador\n"+
+		"WHERE c.cnpj_restaurante="+cnpj);
+		
+		return nomeEntregador;
+		
 	}
+	
+	public void buscaEntrega(Long cpf) throws SQLException {
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select h.nome, h.endereco_humano, r.descricao, r.preco from compra as c\n"+
+		"JOIN refeicao as r on r.refeicao_id = c.refeicao_id\n"+
+		"JOIN humano as h on h.cpf = c.cpf_cliente\n"+
+		"WHERE c.cpf_entregador="+cpf);
+		System.out.println("Nome do Cliente | Endereço | Prato | Preço ");
+		while(rs.next()) {
+			 System.out.println(rs.getString(1)+" | "+rs.getString(2)+" | "+rs.getString(3)+" | "+rs.getFloat(4));
+				
+		}
+		rs.close();
+		st.close();
+	}
+	
+	
+	public void restauranteConsultaVendaAtiva(Long cnpj) throws SQLException {
+		Statement st = conn.createStatement();	
+		//from tb compra refeicao_id cpf_cliente cpf_entregador
+		//MEIO PAGAMENTO SERÁ MELHORIA
+		ResultSet rs = st.executeQuery("select h.nome,h.endereco_humano,r.descricao,r.preco from compra as c\n"+
+		"JOIN humano as h ON h.cpf = c.cpf_cliente\n"+
+		"JOIN refeicao as r ON c.refeicao_id=r.refeicao_id\n"+
+		"where cnpj_restaurante="+cnpj);
+		 System.out.println("Nome do Cliente | Endereço | Prato | Preço ");
+		 //ResultSet rs2 = nomeEntregadorCompra(cnpj);
+		 while (rs.next()) {
+			 //rs2.next();
+			 System.out.println(rs.getString(1)+" | "+rs.getString(2)+" | "+rs.getString(3)+" | "+rs.getFloat(4));
+			// System.out.println(rs.getString(1)+" | "+rs.getString(2)+" | "+rs2.getInt(1));
+				
+		 }
+		 rs.close();
+		 st.close();
+		 
+	
+	}
+	
 	
 	public void restauranteCadastraRefeicao(Long cnpj, String descricao, Float preco, Integer disponibilidade) throws SQLException {
 		Integer refeicaoId = null;
 		String endereco = null;
-		//inserir na tabela refeicao- descricao, preco(float), disponibilidade(numeric 1,0)
-		//a tabela refeicao_unidade tem o refeicao_id e o endereco (restaurante_unidade) como FKs - é a tab de relacionamento
 		Statement st = conn.createStatement();
 		st.execute("insert into refeicao(descricao, preco, disponibilidade)\n"+
 		"values('"+descricao+"','"+preco+"','"+disponibilidade+"')");
@@ -201,7 +234,6 @@ public class BancoDados {
 	}
 	
 	public void buscaComida() throws SQLException {	
-		//Buscar na tabela tipo_comida
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select distinct tipo from tipo_comida");
 		while(rs.next()) {
@@ -212,8 +244,6 @@ public class BancoDados {
 	}
 	
 	public void buscaRestaurantePorComidaERegiao(String tipoComida, Long cpf) throws SQLException {
-		//busca elo tipo comida, e pelo endereco do cpf, pega o endereco do restaurante where tipo comida like tipocomida;
-		//pelo cpf pega o bairro da tb humano// esse bairo pega o endereco pela tabela regiao_unidade // esse endereco pega o tipo na tabela tipo_unidade // com esse endereco pega o cnpj na sede_unidade // com esse cnpj pega o nome_fantasia da restaurante_sede
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select rs.nome_fantasia from restaurante_sede as rs\n"+
 		"JOIN sede_unidade as su ON rs.cnpj = su.cnpj\n"+
@@ -229,22 +259,12 @@ public class BancoDados {
 	}
 
 	
-	public void buscaPratosPorRestaurante(String restaurante) {
-		System.out.println("Macarrão");
-		System.out.println("Pizza");
-		System.out.println("Esfiha");
-				
-	}
-	
 	public void salvaEncomendaDinheiroTroco(Long cpf, String restaurante, Integer refeicao, float dinheiroValor) throws SQLException {
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select preco from refeicao where refeicao_id="+refeicao);
 		rs.next();
 		float precoBanco = (rs.getFloat(1));
 		float troco = dinheiroValor - precoBanco;
-		//insert into meio_pagamento meiopagamento_id = 1;
-		//insert into compra refeicao_id = refeicao, cpf_cliente = cpf, cpf_entregador = disponivel / placa = disponivel / tempo_espera = 30min
-		//cnpj_restaurante = cnpj where nome_fantasia like restaurante
 		rs.close();
 		ResultSet rs2 = st.executeQuery("select cpf,placa from veiculo");
 		rs2.next();
@@ -271,7 +291,8 @@ public class BancoDados {
 		"values("+troco+","+meioPagamento+")");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
-		
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void salvaEncomendaDinheiro(Long cpf, String restaurante, Integer refeicao) throws SQLException {
@@ -299,7 +320,8 @@ public class BancoDados {
 		"values("+meioPagamento+")");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
-		
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void salvaEncomendaCartao(Long cpf, String restaurante, Integer refeicao, Long numeroCartao, String nomeTitular, Long cpfTitular, LocalDate validadeDate) throws SQLException {
@@ -329,13 +351,11 @@ public class BancoDados {
 		"values("+numeroCartao+","+cpf+","+meioPagamento+",'"+validadeDate+"','"+nomeTitular+"')");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void buscaRefeicaoPorRestaurante(String restaurante) throws SQLException {
-		//Selecionar join restaurante_sede pelo nome fantasia, onde o CNPJ for
-		//igual à da sede_unidade, p pegar o endereco. Esse endereco bate na
-		//refeicao_unidade, q trás o refeicao Id. Esse refeicao Id bate na tab
-		//refeicao, q pega a descricao(nome)e o preco);
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("select r.refeicao_id, r.descricao, r.preco from restaurante_sede as rs\n"+
 		"JOIN sede_unidade as su ON rs.cnpj = su.cnpj\n"+
