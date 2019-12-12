@@ -179,6 +179,22 @@ public class BancoDados {
 		
 	}
 	
+	public void buscaEntrega(Long cpf) throws SQLException {
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select h.nome, h.endereco_humano, r.descricao, r.preco from compra as c\n"+
+		"JOIN refeicao as r on r.refeicao_id = c.refeicao_id\n"+
+		"JOIN humano as h on h.cpf = c.cpf_cliente\n"+
+		"WHERE c.cpf_entregador="+cpf);
+		System.out.println("Nome do Cliente | Endereço | Prato | Preço ");
+		while(rs.next()) {
+			 System.out.println(rs.getString(1)+" | "+rs.getString(2)+" | "+rs.getString(3)+" | "+rs.getFloat(4));
+				
+		}
+		rs.close();
+		st.close();
+	}
+	
+	
 	public void restauranteConsultaVendaAtiva(Long cnpj) throws SQLException {
 		Statement st = conn.createStatement();	
 		//from tb compra refeicao_id cpf_cliente cpf_entregador
@@ -275,7 +291,8 @@ public class BancoDados {
 		"values("+troco+","+meioPagamento+")");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
-		
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void salvaEncomendaDinheiro(Long cpf, String restaurante, Integer refeicao) throws SQLException {
@@ -303,7 +320,8 @@ public class BancoDados {
 		"values("+meioPagamento+")");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
-		
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void salvaEncomendaCartao(Long cpf, String restaurante, Integer refeicao, Long numeroCartao, String nomeTitular, Long cpfTitular, LocalDate validadeDate) throws SQLException {
@@ -333,6 +351,8 @@ public class BancoDados {
 		"values("+numeroCartao+","+cpf+","+meioPagamento+",'"+validadeDate+"','"+nomeTitular+"')");
 		st.execute("insert into compra(refeicao_id,cpf_cliente,cpf_entregador,meiopagamento_id,placa,tempo_espera,cnpj_restaurante)\n"+
 		"values("+refeicao+", "+cpf+","+cpfEntregador+","+meioPagamento+",'"+placa+"',"+30+","+cnpj+")");
+		System.out.println("Compra cadastrada com sucesso! O tempo estimado para a entrega é de "+30+"minutos");
+
 	}
 	
 	public void buscaRefeicaoPorRestaurante(String restaurante) throws SQLException {

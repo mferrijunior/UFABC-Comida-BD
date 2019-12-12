@@ -50,7 +50,7 @@ public class Mensagens {
 	}
 	
 	public static void opcoesRestaurante() {
-		System.out.println("1: Consultar venda ativa");
+		System.out.println("1: Consultar vendas");
 		System.out.println("2: Cadastrar novo prato");
 	}
 	
